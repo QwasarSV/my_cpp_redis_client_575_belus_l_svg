@@ -2,8 +2,6 @@
 
 int main(int argc, char** argv)
 {
-    std::string arg = argv[1];
-    std::cout << "retreiving entry @" << arg << std::endl;
-    testMsgPacktoHiredis();
+    test_redis_connection_opt();
     return EXIT_SUCCESS;
 }

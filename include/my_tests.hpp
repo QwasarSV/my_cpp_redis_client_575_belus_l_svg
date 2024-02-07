@@ -3,5 +3,7 @@
 
 #include <main_header.hpp>
 
+void test_redis_connection();
+void test_redis_connection_opt();
 
 #endif
