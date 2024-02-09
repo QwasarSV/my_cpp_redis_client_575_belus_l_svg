@@ -5,7 +5,7 @@
 
 void test_redis_connection()
 {
-    redisContext *c = redisConnect("127.0.0.1", 6379);
+    redisContext* c = redisConnect("127.0.0.1", 6379);
     if (c == NULL || c->err)
     {
         if (c)
@@ -23,7 +23,7 @@ void test_redis_connection()
 void test_redis_connection_opt()
 {
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -51,9 +51,9 @@ void test_redis_connection_opt()
 
 // TEST GET AND SET
 
-void set_value(redisContext *c, const char *key, const char *value)
+void set_value(redisContext* c, const char* key, const char* value)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "SET %s %s", key, value);
     if (reply == NULL)
     {
@@ -72,7 +72,7 @@ void set_value(redisContext *c, const char *key, const char *value)
     freeReplyObject(reply);
 }
 
-void get_value(redisContext *c, const char *key)
+void get_value(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "GET %s", key);
@@ -97,7 +97,7 @@ void test_redis_get_and_set_opt()
 {
     printf("Begin test on GET and SET\n");
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -127,8 +127,8 @@ void test_redis_get_and_set_opt()
 
 // TEST KEYS, TYPE and DEL
 
-void list_keys(redisContext *c, const char *pattern) {
-    redisReply *reply;
+void list_keys(redisContext* c, const char *pattern) {
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "KEYS %s", pattern);
     if (reply == NULL)
     {
@@ -152,9 +152,9 @@ void list_keys(redisContext *c, const char *pattern) {
     freeReplyObject(reply);
 }
 
-void get_key_type(redisContext *c, const char *key)
+void get_key_type(redisContext* c, const char* key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "TYPE %s", key);
     if (reply == NULL)
     {
@@ -173,9 +173,9 @@ void get_key_type(redisContext *c, const char *key)
     freeReplyObject(reply);
 }
 
-void delete_key(redisContext *c, const char *key)
+void delete_key(redisContext* c, const char* key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "DEL %s", key);
     if (reply == NULL)
     {
@@ -199,7 +199,7 @@ void test_redis_key_type_and_del_opt()
 {
     printf("Begin test on KEY, TYPE and DEL\n");
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -232,9 +232,9 @@ void test_redis_key_type_and_del_opt()
 
 // TEST UNLINK, EXPIRE and RENAME
 
-void unlink_key(redisContext *c, const char *key)
+void unlink_key(redisContext* c, const char* key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "UNLINK %s", key);
     if (reply == NULL)
     {
@@ -253,9 +253,9 @@ void unlink_key(redisContext *c, const char *key)
     freeReplyObject(reply);
 }
 
-void set_expire(redisContext *c, const char *key, int seconds)
+void set_expire(redisContext* c, const char* key, int seconds)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "EXPIRE %s %d", key, seconds);
     if (reply == NULL)
     {
@@ -282,9 +282,9 @@ void set_expire(redisContext *c, const char *key, int seconds)
 }
 
 
-void rename_key(redisContext *c, const char *old_key, const char *new_key)
+void rename_key(redisContext* c, const char *old_key, const char *new_key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "RENAME %s %s", old_key, new_key);
     if (reply == NULL)
     {
@@ -308,7 +308,7 @@ void test_redis_expire_rename_and_unlink_opt()
 {
     printf("Begin test on EXPIRE, RENAME and UNLINKS\n");
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -347,9 +347,9 @@ void test_redis_expire_rename_and_unlink_opt()
 
 // TEST LPUSH/RPUSH and LPOP/RPOP
 
-void push_to_list_left(redisContext *c, const char *key, const char *value)
+void push_to_list_left(redisContext* c, const char* key, const char* value)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LPUSH %s %s", key, value);
     if (reply == NULL)
     {
@@ -369,9 +369,9 @@ void push_to_list_left(redisContext *c, const char *key, const char *value)
     freeReplyObject(reply);
 }
 
-void push_to_list_right(redisContext *c, const char *key, const char *value)
+void push_to_list_right(redisContext* c, const char* key, const char* value)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "RPUSH %s %s", key, value);
     if (reply == NULL)
     {
@@ -390,9 +390,9 @@ void push_to_list_right(redisContext *c, const char *key, const char *value)
     freeReplyObject(reply);
 }
 
-void pop_from_list_left(redisContext *c, const char *key)
+void pop_from_list_left(redisContext* c, const char* key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LPOP %s", key);
     if (reply == NULL)
     {
@@ -412,9 +412,9 @@ void pop_from_list_left(redisContext *c, const char *key)
     freeReplyObject(reply);
 }
 
-void pop_from_list_right(redisContext *c, const char *key)
+void pop_from_list_right(redisContext* c, const char* key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "RPOP %s", key);
     if (reply == NULL)
     {
@@ -437,7 +437,7 @@ void test_redis_lpush_rpush_and_lpop_rpop_opt()
 {
     printf("Begin test on LPUSH, RPUSH and LPOP, RPOP\n");
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -470,9 +470,9 @@ void test_redis_lpush_rpush_and_lpop_rpop_opt()
 
 // TEST LLEN, LREM, LINDEX and LSET
 
-void list_length(redisContext *c, const char *key)
+void list_length(redisContext* c, const char* key)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LLEN %s", key);
     if (reply == NULL)
     {
@@ -491,9 +491,9 @@ void list_length(redisContext *c, const char *key)
     freeReplyObject(reply);
 }
 
-void remove_from_list(redisContext *c, const char *key, int count, const char *element)
+void remove_from_list(redisContext* c, const char* key, int count, const char *element)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LREM %s %d %s", key, count, element);
     if (reply == NULL)
     {
@@ -513,9 +513,9 @@ void remove_from_list(redisContext *c, const char *key, int count, const char *e
     freeReplyObject(reply);
 }
 
-void get_list_element(redisContext *c, const char *key, int index)
+void get_list_element(redisContext* c, const char* key, int index)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LINDEX %s %d", key, index);
     if (reply == NULL)
     {
@@ -534,9 +534,9 @@ void get_list_element(redisContext *c, const char *key, int index)
     freeReplyObject(reply);
 }
 
-void set_list_element(redisContext *c, const char *key, int index, const char *value)
+void set_list_element(redisContext* c, const char* key, int index, const char* value)
 {
-    redisReply *reply;
+    redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LSET %s %d %s", key, index, value);
     if (reply == NULL)
     {
@@ -555,12 +555,11 @@ void set_list_element(redisContext *c, const char *key, int index, const char *v
     freeReplyObject(reply);
 }
 
-
 void test_redis_llen_lrem_lindex_lset_opt()
 {
     printf("Begin test on LLEN, LREM, LINDEX and LSET\n");
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -600,12 +599,121 @@ void test_redis_llen_lrem_lindex_lset_opt()
     printf("End of test\n\n");
 }
 
-
 // TEST HGET, HEXISTS, HMSET, HDEL, HSET and HVALS
 
-void set_hash_field(redisContext *c, const char *key, const char *field, const char *value)
+void get_hash_field(redisContext* c, const char* key, const char* field)
 {
-    redisReply *reply = (redisReply *)redisCommand(c, "HSET %s %s %s", key, field, value);
+    redisReply* reply;
+    reply = (redisReply*)redisCommand(c, "HGET %s %s", key, field);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+    if (reply->type == REDIS_REPLY_STRING)
+    {
+        printf("Value of '%s': %s\n", field, reply->str);
+    }
+    else if (reply->type == REDIS_REPLY_NIL)
+    {
+        printf("Field '%s' does not exist.\n", field);
+    }
+    else
+    {
+        printf("Failed to retrieve value for field '%s'.\n", field);
+    }
+    freeReplyObject(reply);
+}
+
+void check_hash_field_exists(redisContext* c, const char* key, const char* field)
+{
+    redisReply* reply;
+    reply = (redisReply*)redisCommand(c, "HEXISTS %s %s", key, field);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+    if (reply->type == REDIS_REPLY_INTEGER)
+    {
+        if (reply->integer == 1)
+        {
+            printf("Field '%s' exists.\n", field);
+        }
+        else
+        {
+            printf("Field '%s' does not exist.\n", field);
+        }
+    }
+    else
+    {
+        printf("Failed to check existence for field '%s'.\n", field);
+    }
+    freeReplyObject(reply);
+}
+
+void set_multiple_hash_fields(redisContext* c, const char* key, const char** fields, const char** values, size_t fieldCount)
+{
+    const char* argv[2 + fieldCount * 2];
+    size_t argvlen[2 + fieldCount * 2];
+    argv[0] = "HMSET";
+    argvlen[0] = 5;
+    argv[1] = key;
+    argvlen[1] = strlen(key);
+    int index = 0;
+    while(index < fieldCount)
+    {
+        argv[2 + index * 2] = fields[index];
+        argvlen[2 + index * 2] = strlen(fields[index]);
+        argv[2 + index * 2 + 1] = values[index];
+        argvlen[2 + index * 2 + 1] = strlen(values[index]);
+        index += 1;
+    }
+    redisReply* reply = (redisReply*)redisCommandArgv(c, 2 + fieldCount * 2, argv, argvlen);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+    if (reply->type == REDIS_REPLY_STATUS)
+    {
+        printf("Fields set successfully.\n");
+    }
+    else
+    {
+        printf("Failed to set fields.\n");
+    }
+    freeReplyObject(reply);
+}
+
+
+void delete_hash_fields(redisContext* c, const char* key, const char* field)
+{
+    redisReply* reply;
+    reply = (redisReply*)redisCommand(c, "HDEL %s %s", key, field);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+    if (reply->type == REDIS_REPLY_INTEGER)
+    {
+        printf("Number of fields deleted: %lld\n", reply->integer);
+    }
+    else
+    {
+        printf("Failed to delete field '%s' from hash.\n", field);
+    }
+    freeReplyObject(reply);
+}
+
+void set_hash_field(redisContext* c, const char* key, const char* field, const char* value)
+{
+    redisReply* reply = (redisReply*)redisCommand(c, "HSET %s %s %s", key, field, value);
     if (reply == NULL)
     {
         printf("Error: %s\n", c->errstr);
@@ -630,9 +738,10 @@ void set_hash_field(redisContext *c, const char *key, const char *field, const c
     freeReplyObject(reply);
 }
 
-void get_hash_values(redisContext *c, const char *key)
+
+void get_hash_values(redisContext* c, const char* key)
 {
-    redisReply *reply = (redisReply *)redisCommand(c, "HVALS %s", key);
+    redisReply* reply = (redisReply*)redisCommand(c, "HVALS %s", key);
     if (reply == NULL)
     {
         printf("Error: %s\n", c->errstr);
@@ -642,7 +751,7 @@ void get_hash_values(redisContext *c, const char *key)
     if (reply->type == REDIS_REPLY_ARRAY)
     {
         printf("Values in hash '%s':\n", key);
-        for (size_t i = 0; i < reply->elements; i++)
+        for (size_t i = 0; i < reply->elements; i++) //iso C++ cannot compare integer and ptr but this works...
         {
             printf("%s\n", reply->element[i]->str);
         }
@@ -658,7 +767,7 @@ void test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
 {
     printf("Begin test on HGET, HEXISTS, HMSET, HDEL,HSET and HVALS\n");
     redisOptions opt = {0};
-    redisContext *c;
+    redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
     opt.options |= REDIS_OPT_PREFER_IPV4;
     c = redisConnectWithOptions(&opt);
@@ -678,11 +787,132 @@ void test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
     {
         printf("Successfully connected to Redis\n");
     }
-    const char *fields[] = {"field1", "field2"};
-    const char *values[] = {"value1", "value2"};
+    const char* fields[] = {"field1", "field2"};
+    const char* values[] = {"value1", "value2"};
+    set_multiple_hash_fields(c, "myhash", fields, values, 2);
     set_hash_field(c, "myhash", "field3", "value3");
+    get_hash_field(c, "myhash", "field1"); 
     get_hash_values(c, "myhash");
-    check_hash_field_exists(c, "myhash", "field1");
+    check_hash_field_exists(c, "myhash", "field3");
+    delete_hash_fields(c, "myhash", "field3");
+    delete_hash_fields(c, "myhash", "field2");
+    delete_hash_fields(c, "myhash", "field1");
+    if (c)
+    {
+        redisFree(c);
+    }
+    printf("End of test\n\n");
+}
+
+
+// TEST HGETALL, HKEYS, and HLEN
+
+
+void get_all_hash_fields(redisContext* c, const char* key)
+{
+    redisReply* reply = (redisReply*)redisCommand(c, "HGETALL %s", key);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+    if (reply->type == REDIS_REPLY_ARRAY)
+    {
+        for (size_t i = 0; i < reply->elements; i += 2) //iso C++ cannot compare integer and ptr but this works...
+        {
+            printf("Field: %s, Value: %s\n", reply->element[i]->str, reply->element[i + 1]->str);
+        }
+    }
+    else
+    {
+        printf("Failed to retrieve hash fields for '%s'.\n", key);
+    }
+    freeReplyObject(reply);
+}
+
+void get_hash_keys(redisContext* c, const char* key)
+{
+    redisReply* reply = (redisReply*)redisCommand(c, "HKEYS %s", key);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+
+    if (reply->type == REDIS_REPLY_ARRAY)
+    {
+        printf("Fields in hash '%s':\n", key);
+        int index = 0;
+        for (size_t i = 0; i < reply->elements; i++) //iso C++ cannot compare integer and ptr but this works...
+        {
+            printf("%s\n", reply->element[i]->str);
+        }
+    }
+    else
+    {
+        printf("Failed to retrieve keys for hash '%s'.\n", key);
+    }
+
+    freeReplyObject(reply);
+}
+
+void get_hash_length(redisContext* c, const char* key)
+{
+    redisReply *reply = (redisReply *)redisCommand(c, "HLEN %s", key);
+    if (reply == NULL)
+    {
+        printf("Error: %s\n", c->errstr);
+        redisFree(c);
+        exit(1);
+    }
+    if (reply->type == REDIS_REPLY_INTEGER)
+    {
+        printf("Number of fields in hash '%s': %lld\n", key, reply->integer);
+    }
+    else
+    {
+        printf("Failed to get the length of hash '%s'.\n", key);
+    }
+    freeReplyObject(reply);
+}
+
+// TEST HGETALL, HKEYS, and HLEN
+
+void test_redis_hgetall_hkeys_and_hlen_opt()
+{
+    printf("Begin test on HGETALL, HKEYS, and HLENS\n");
+    redisOptions opt = {0};
+    redisContext* c;
+    REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
+    opt.options |= REDIS_OPT_PREFER_IPV4;
+    c = redisConnectWithOptions(&opt);
+    set_value(c, "Hiredis01", "Hiredis01_value");
+    if (c == NULL || c->err)
+    {
+        if (c)
+        {
+            printf("Error: %s\n", c->errstr);
+        }
+        else
+        {
+            printf("Can't allocate redis context\n");
+        }
+    }
+    else
+    {
+        printf("Successfully connected to Redis\n");
+    }
+    const char* fields[] = {"field1", "field2"};
+    const char* values[] = {"value1", "value2"};
+    set_multiple_hash_fields(c, "myhash", fields, values, 2);
+    set_hash_field(c, "myhash", "field3", "value3");
+    get_all_hash_fields(c, "myhash");
+    get_hash_keys(c, "myhash");
+    get_hash_length(c, "myhash"); 
+    delete_hash_fields(c, "myhash", "field3");
+    delete_hash_fields(c, "myhash", "field2");
     delete_hash_fields(c, "myhash", "field1");
     if (c)
     {
