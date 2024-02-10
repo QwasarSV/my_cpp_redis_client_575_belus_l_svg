@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include <hiredis/hiredis.h>
-#include <main_header.hpp>
 #include <my_tests.hpp>
+#include <my_redis_client.hpp>
 
 #endif

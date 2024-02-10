@@ -3,7 +3,7 @@
 
 // TEST IP AND TCP CONNECTION
 
-void test_redis_connection()
+int test_redis_connection()
 {
     redisContext* c = redisConnect("127.0.0.1", 6379);
     if (c == NULL || c->err)
@@ -11,16 +11,23 @@ void test_redis_connection()
         if (c)
         {
             printf("Error: %s\n", c->errstr);
-            // handle error
+            redisFree(c);
+            return EXIT_FAILURE;
         }
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
+    }
+    if (c)
+    {
+      redisFree(c);
+      return EXIT_SUCCESS;  
     }
 }
 
-void test_redis_connection_opt()
+int test_redis_connection_opt()
 {
     redisOptions opt = {0};
     redisContext* c;
@@ -32,10 +39,13 @@ void test_redis_connection_opt()
         if (c)
         {
             printf("Error: %s\n", c->errstr);
+            redisFree(c);
+            return EXIT_FAILURE;
         }
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
@@ -44,14 +54,15 @@ void test_redis_connection_opt()
     }
     if (c)
     {
-      redisFree(c);  
+      redisFree(c);
+      return EXIT_SUCCESS;
     }
 }
 
 
 // TEST GET AND SET
 
-void set_value(redisContext* c, const char* key, const char* value)
+int set_value(redisContext* c, const char* key, const char* value)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "SET %s %s", key, value);
@@ -68,11 +79,15 @@ void set_value(redisContext* c, const char* key, const char* value)
     else
     {
         printf("SET operation failed.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
+
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void get_value(redisContext* c, const char* key)
+int get_value(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "GET %s", key);
@@ -89,13 +104,16 @@ void get_value(redisContext* c, const char* key)
     else
     {
         printf("GET operation failed or key does not exist.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void test_redis_get_and_set_opt()
+int test_redis_get_and_set_opt()
 {
-    printf("Begin test on GET and SET\n");
+    printf("Begin c test on GET and SET\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -111,6 +129,8 @@ void test_redis_get_and_set_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            freeReplyObject(reply);
+            return EXIT_FAILURE;
         }
     }
     else
@@ -121,13 +141,15 @@ void test_redis_get_and_set_opt()
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
 }
 
 // TEST KEYS, TYPE and DEL
 
-void list_keys(redisContext* c, const char *pattern) {
+int list_keys(redisContext* c, const char *pattern)
+{
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "KEYS %s", pattern);
     if (reply == NULL)
@@ -140,19 +162,22 @@ void list_keys(redisContext* c, const char *pattern) {
     if (reply->type == REDIS_REPLY_ARRAY)
     {
         printf("Matching keys:\n");
-        for (size_t i = 0; i < reply->elements; i++)
+        for (size_t index = 0; index < reply->elements; i++)
         {
-            printf("%s\n", reply->element[i]->str);
+            printf("%s\n", reply->element[index]->str);
         }
     }
     else
     {
         printf("No matching keys found.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void get_key_type(redisContext* c, const char* key)
+int get_key_type(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "TYPE %s", key);
@@ -169,11 +194,14 @@ void get_key_type(redisContext* c, const char* key)
     else
     {
         printf("Failed to get type for key %s.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void delete_key(redisContext* c, const char* key)
+int delete_key(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "DEL %s", key);
@@ -190,14 +218,17 @@ void delete_key(redisContext* c, const char* key)
     else
     {
         printf("DEL operation failed.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
 
-void test_redis_key_type_and_del_opt()
+int test_redis_key_type_and_del_opt()
 {
-    printf("Begin test on KEY, TYPE and DEL\n");
+    printf("Begin c test on KEY, TYPE and DEL\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -213,18 +244,20 @@ void test_redis_key_type_and_del_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
     {
         printf("Successfully connected to Redis\n");
     }
-    list_keys(c, "*");        // List all keys
-    get_key_type(c, "Hiredis01");   // Get the type of the value stored at key "foo"
+    list_keys(c, "*"); 
+    get_key_type(c, "Hiredis01");
     delete_key(c, "Hiredis01");
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
 }
@@ -232,7 +265,7 @@ void test_redis_key_type_and_del_opt()
 
 // TEST UNLINK, EXPIRE and RENAME
 
-void unlink_key(redisContext* c, const char* key)
+int unlink_key(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "UNLINK %s", key);
@@ -249,11 +282,14 @@ void unlink_key(redisContext* c, const char* key)
     else
     {
         printf("UNLINK operation failed.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void set_expire(redisContext* c, const char* key, int seconds)
+int set_expire(redisContext* c, const char* key, int seconds)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "EXPIRE %s %d", key, seconds);
@@ -272,6 +308,8 @@ void set_expire(redisContext* c, const char* key, int seconds)
         else
         {
             printf("EXPIRE operation - key does not exist.\n");
+            freeReplyObject(reply);
+            return EXIT_FAILURE;
         }
     }
     else
@@ -279,10 +317,11 @@ void set_expire(redisContext* c, const char* key, int seconds)
         printf("EXPIRE operation failed.\n");
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
 
-void rename_key(redisContext* c, const char *old_key, const char *new_key)
+int rename_key(redisContext* c, const char *old_key, const char *new_key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "RENAME %s %s", old_key, new_key);
@@ -299,14 +338,17 @@ void rename_key(redisContext* c, const char *old_key, const char *new_key)
     else
     {
         printf("RENAME operation failed.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
 
-void test_redis_expire_rename_and_unlink_opt()
+int test_redis_expire_rename_and_unlink_opt()
 {
-    printf("Begin test on EXPIRE, RENAME and UNLINKS\n");
+    printf("Begin c test on EXPIRE, RENAME and UNLINKS\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -322,6 +364,7 @@ void test_redis_expire_rename_and_unlink_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
@@ -330,7 +373,7 @@ void test_redis_expire_rename_and_unlink_opt()
     }
     set_expire(c, "Hiredis01", 3);
     get_value(c, "Hiredis01");
-    printf("waiting for key to expire...\n");
+    printf("Waiting for key to expire...\n");
     sleep(4);
     get_value(c, "Hiredis01");
     set_value(c, "Hiredis01", "Hiredis01_value");
@@ -341,13 +384,14 @@ void test_redis_expire_rename_and_unlink_opt()
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
 }
 
 // TEST LPUSH/RPUSH and LPOP/RPOP
 
-void push_to_list_left(redisContext* c, const char* key, const char* value)
+int push_to_list_left(redisContext* c, const char* key, const char* value)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LPUSH %s %s", key, value);
@@ -364,12 +408,15 @@ void push_to_list_left(redisContext* c, const char* key, const char* value)
     else
     {
         printf("LPUSH: Failed to push element to the list.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
 
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void push_to_list_right(redisContext* c, const char* key, const char* value)
+int push_to_list_right(redisContext* c, const char* key, const char* value)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "RPUSH %s %s", key, value);
@@ -386,11 +433,14 @@ void push_to_list_right(redisContext* c, const char* key, const char* value)
     else
     {
         printf("RPUSH: Failed to push element to the list.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void pop_from_list_left(redisContext* c, const char* key)
+int pop_from_list_left(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LPOP %s", key);
@@ -407,12 +457,15 @@ void pop_from_list_left(redisContext* c, const char* key)
     else
     {
         printf("LPOP: List is empty or key does not exist.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
 
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void pop_from_list_right(redisContext* c, const char* key)
+int pop_from_list_right(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "RPOP %s", key);
@@ -429,13 +482,16 @@ void pop_from_list_right(redisContext* c, const char* key)
     else
     {
         printf("RPOP: List is empty or key does not exist.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void test_redis_lpush_rpush_and_lpop_rpop_opt()
+int test_redis_lpush_rpush_and_lpop_rpop_opt()
 {
-    printf("Begin test on LPUSH, RPUSH and LPOP, RPOP\n");
+    printf("Begin c test on LPUSH, RPUSH and LPOP, RPOP\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -451,6 +507,7 @@ void test_redis_lpush_rpush_and_lpop_rpop_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
@@ -464,13 +521,14 @@ void test_redis_lpush_rpush_and_lpop_rpop_opt()
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
 }
 
 // TEST LLEN, LREM, LINDEX and LSET
 
-void list_length(redisContext* c, const char* key)
+int list_length(redisContext* c, const char* key)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LLEN %s", key);
@@ -487,11 +545,14 @@ void list_length(redisContext* c, const char* key)
     else
     {
         printf("Failed to get length of list %s.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void remove_from_list(redisContext* c, const char* key, int count, const char *element)
+int remove_from_list(redisContext* c, const char* key, int count, const char *element)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LREM %s %d %s", key, count, element);
@@ -508,12 +569,15 @@ void remove_from_list(redisContext* c, const char* key, int count, const char *e
     else
     {
         printf("Failed to remove elements from list %s.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
 
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void get_list_element(redisContext* c, const char* key, int index)
+int get_list_element(redisContext* c, const char* key, int index)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LINDEX %s %d", key, index);
@@ -530,11 +594,14 @@ void get_list_element(redisContext* c, const char* key, int index)
     else
     {
         printf("Failed to retrieve element at index %d from list %s.\n", index, key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void set_list_element(redisContext* c, const char* key, int index, const char* value)
+int set_list_element(redisContext* c, const char* key, int index, const char* value)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "LSET %s %d %s", key, index, value);
@@ -551,13 +618,16 @@ void set_list_element(redisContext* c, const char* key, int index, const char* v
     else
     {
         printf("LSET: Failed to set element - %s.\n", reply->str);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void test_redis_llen_lrem_lindex_lset_opt()
+int test_redis_llen_lrem_lindex_lset_opt()
 {
-    printf("Begin test on LLEN, LREM, LINDEX and LSET\n");
+    printf("Begin c test on LLEN, LREM, LINDEX and LSET\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -573,35 +643,37 @@ void test_redis_llen_lrem_lindex_lset_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
     {
         printf("Successfully connected to Redis\n");
     }
-        push_to_list_left(c, "mylist", "leftElement01");
-        push_to_list_right(c, "mylist", "rightElement01");
-        push_to_list_left(c, "mylist", "leftElement02");
-        push_to_list_right(c, "mylist", "rightElement02");
-        list_length(c, "mylist");
-        remove_from_list(c, "mylist", 1, "rightElement02");
-        list_length(c, "mylist");
-        set_list_element(c, "mylist", 0, "newValue");
-        get_list_element(c, "mylist", 0);
-        pop_from_list_left(c, "mylist");
-        pop_from_list_right(c, "mylist");
-        pop_from_list_left(c, "mylist");  
+    push_to_list_left(c, "mylist", "leftElement01");
+    push_to_list_right(c, "mylist", "rightElement01");
+    push_to_list_left(c, "mylist", "leftElement02");
+    push_to_list_right(c, "mylist", "rightElement02");
+    list_length(c, "mylist");
+    remove_from_list(c, "mylist", 1, "rightElement02");
+    list_length(c, "mylist");
+    set_list_element(c, "mylist", 0, "newValue");
+    get_list_element(c, "mylist", 0);
+    pop_from_list_left(c, "mylist");
+    pop_from_list_right(c, "mylist");
+    pop_from_list_left(c, "mylist");  
 
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
 }
 
 // TEST HGET, HEXISTS, HMSET, HDEL, HSET and HVALS
 
-void get_hash_field(redisContext* c, const char* key, const char* field)
+int get_hash_field(redisContext* c, const char* key, const char* field)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "HGET %s %s", key, field);
@@ -622,11 +694,14 @@ void get_hash_field(redisContext* c, const char* key, const char* field)
     else
     {
         printf("Failed to retrieve value for field '%s'.\n", field);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void check_hash_field_exists(redisContext* c, const char* key, const char* field)
+int check_hash_field_exists(redisContext* c, const char* key, const char* field)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "HEXISTS %s %s", key, field);
@@ -650,11 +725,14 @@ void check_hash_field_exists(redisContext* c, const char* key, const char* field
     else
     {
         printf("Failed to check existence for field '%s'.\n", field);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void set_multiple_hash_fields(redisContext* c, const char* key, const char** fields, const char** values, size_t fieldCount)
+int set_multiple_hash_fields(redisContext* c, const char* key, const char** fields, const char** values, size_t fieldCount)
 {
     const char* argv[2 + fieldCount * 2];
     size_t argvlen[2 + fieldCount * 2];
@@ -663,7 +741,7 @@ void set_multiple_hash_fields(redisContext* c, const char* key, const char** fie
     argv[1] = key;
     argvlen[1] = strlen(key);
     int index = 0;
-    while(index < fieldCount)
+    while (index < fieldCount)
     {
         argv[2 + index * 2] = fields[index];
         argvlen[2 + index * 2] = strlen(fields[index]);
@@ -685,12 +763,14 @@ void set_multiple_hash_fields(redisContext* c, const char* key, const char** fie
     else
     {
         printf("Failed to set fields.\n");
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-
-void delete_hash_fields(redisContext* c, const char* key, const char* field)
+int delete_hash_fields(redisContext* c, const char* key, const char* field)
 {
     redisReply* reply;
     reply = (redisReply*)redisCommand(c, "HDEL %s %s", key, field);
@@ -707,11 +787,14 @@ void delete_hash_fields(redisContext* c, const char* key, const char* field)
     else
     {
         printf("Failed to delete field '%s' from hash.\n", field);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void set_hash_field(redisContext* c, const char* key, const char* field, const char* value)
+int set_hash_field(redisContext* c, const char* key, const char* field, const char* value)
 {
     redisReply* reply = (redisReply*)redisCommand(c, "HSET %s %s %s", key, field, value);
     if (reply == NULL)
@@ -734,12 +817,14 @@ void set_hash_field(redisContext* c, const char* key, const char* field, const c
     else
     {
         printf("Failed to set field '%s'.\n", field);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-
-void get_hash_values(redisContext* c, const char* key)
+int get_hash_values(redisContext* c, const char* key)
 {
     redisReply* reply = (redisReply*)redisCommand(c, "HVALS %s", key);
     if (reply == NULL)
@@ -751,21 +836,24 @@ void get_hash_values(redisContext* c, const char* key)
     if (reply->type == REDIS_REPLY_ARRAY)
     {
         printf("Values in hash '%s':\n", key);
-        for (size_t i = 0; i < reply->elements; i++) //iso C++ cannot compare integer and ptr but this works...
+        for (size_t index = 0; index < reply->elements; index++) //iso C++ cannot compare integer and ptr but this works...
         {
-            printf("%s\n", reply->element[i]->str);
+            printf("%s\n", reply->element[index]->str);
         }
     }
     else
     {
         printf("Failed to retrieve values for hash '%s'.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
+int test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
 {
-    printf("Begin test on HGET, HEXISTS, HMSET, HDEL,HSET and HVALS\n");
+    printf("Begin c test on HGET, HEXISTS, HMSET, HDEL,HSET and HVALS\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -781,6 +869,7 @@ void test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
@@ -800,15 +889,14 @@ void test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
 }
 
-
 // TEST HGETALL, HKEYS, and HLEN
 
-
-void get_all_hash_fields(redisContext* c, const char* key)
+int get_all_hash_fields(redisContext* c, const char* key)
 {
     redisReply* reply = (redisReply*)redisCommand(c, "HGETALL %s", key);
     if (reply == NULL)
@@ -819,19 +907,22 @@ void get_all_hash_fields(redisContext* c, const char* key)
     }
     if (reply->type == REDIS_REPLY_ARRAY)
     {
-        for (size_t i = 0; i < reply->elements; i += 2) //iso C++ cannot compare integer and ptr but this works...
+        for (size_t index = 0; index < reply->elements; index += 2) //iso C++ cannot compare integer and ptr but this works...
         {
-            printf("Field: %s, Value: %s\n", reply->element[i]->str, reply->element[i + 1]->str);
+            printf("Field: %s, Value: %s\n", reply->element[index]->str, reply->element[index + 1]->str);
         }
     }
     else
     {
         printf("Failed to retrieve hash fields for '%s'.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void get_hash_keys(redisContext* c, const char* key)
+int get_hash_keys(redisContext* c, const char* key)
 {
     redisReply* reply = (redisReply*)redisCommand(c, "HKEYS %s", key);
     if (reply == NULL)
@@ -845,20 +936,23 @@ void get_hash_keys(redisContext* c, const char* key)
     {
         printf("Fields in hash '%s':\n", key);
         int index = 0;
-        for (size_t i = 0; i < reply->elements; i++) //iso C++ cannot compare integer and ptr but this works...
+        for (size_t index = 0; index < reply->elements; index++) //iso C++ cannot compare integer and ptr but this works...
         {
-            printf("%s\n", reply->element[i]->str);
+            printf("%s\n", reply->element[index]->str);
         }
     }
     else
     {
         printf("Failed to retrieve keys for hash '%s'.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
 
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-void get_hash_length(redisContext* c, const char* key)
+int get_hash_length(redisContext* c, const char* key)
 {
     redisReply *reply = (redisReply *)redisCommand(c, "HLEN %s", key);
     if (reply == NULL)
@@ -874,15 +968,16 @@ void get_hash_length(redisContext* c, const char* key)
     else
     {
         printf("Failed to get the length of hash '%s'.\n", key);
+        freeReplyObject(reply);
+        return EXIT_FAILURE;
     }
     freeReplyObject(reply);
+    return EXIT_SUCCESS;
 }
 
-// TEST HGETALL, HKEYS, and HLEN
-
-void test_redis_hgetall_hkeys_and_hlen_opt()
+int test_redis_hgetall_hkeys_and_hlen_opt()
 {
-    printf("Begin test on HGETALL, HKEYS, and HLENS\n");
+    printf("Begin c test on HGETALL, HKEYS, and HLENS\n");
     redisOptions opt = {0};
     redisContext* c;
     REDIS_OPTIONS_SET_TCP(&opt, "myredis", 6379);
@@ -898,6 +993,7 @@ void test_redis_hgetall_hkeys_and_hlen_opt()
         else
         {
             printf("Can't allocate redis context\n");
+            return EXIT_FAILURE;
         }
     }
     else
@@ -917,6 +1013,21 @@ void test_redis_hgetall_hkeys_and_hlen_opt()
     if (c)
     {
         redisFree(c);
+        return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+}
+
+int full_c_test()
+{
+    printf("full C tests:\n\n");
+    test_redis_connection_opt();
+    test_redis_get_and_set_opt();
+    test_redis_key_type_and_del_opt();
+    test_redis_expire_rename_and_unlink_opt();
+    test_redis_lpush_rpush_and_lpop_rpop_opt();
+    test_redis_llen_lrem_lindex_lset_opt();
+    test_redis_hget_hexists_hmset_hdel_hset_hvals_opt();
+    test_redis_hgetall_hkeys_and_hlen_opt();
+    printf("end of C test...\n\n\n");
 }

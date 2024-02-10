@@ -20,4 +20,7 @@ void test_redis_llen_lrem_lindex_lset_opt();
 void test_redis_hget_hexists_hmset_hdel_hset_hvals_opt();
 void test_redis_hgetall_hkeys_and_hlen_opt();
 
+// full test;
+void full_c_test();
+
 #endif
