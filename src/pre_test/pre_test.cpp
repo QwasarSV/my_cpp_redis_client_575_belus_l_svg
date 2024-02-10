@@ -25,6 +25,7 @@ int test_redis_connection()
       redisFree(c);
       return EXIT_SUCCESS;  
     }
+    return EXIT_FAILURE;
 }
 
 int test_redis_connection_opt()
@@ -57,6 +58,7 @@ int test_redis_connection_opt()
       redisFree(c);
       return EXIT_SUCCESS;
     }
+    return EXIT_FAILURE;
 }
 
 
@@ -129,7 +131,7 @@ int test_redis_get_and_set_opt()
         else
         {
             printf("Can't allocate redis context\n");
-            freeReplyObject(reply);
+            redisFree(c);
             return EXIT_FAILURE;
         }
     }
@@ -144,6 +146,7 @@ int test_redis_get_and_set_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 // TEST KEYS, TYPE and DEL
@@ -162,7 +165,7 @@ int list_keys(redisContext* c, const char *pattern)
     if (reply->type == REDIS_REPLY_ARRAY)
     {
         printf("Matching keys:\n");
-        for (size_t index = 0; index < reply->elements; i++)
+        for (size_t index = 0; index < reply->elements; index++)
         {
             printf("%s\n", reply->element[index]->str);
         }
@@ -260,6 +263,7 @@ int test_redis_key_type_and_del_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 
@@ -387,6 +391,7 @@ int test_redis_expire_rename_and_unlink_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 // TEST LPUSH/RPUSH and LPOP/RPOP
@@ -524,6 +529,7 @@ int test_redis_lpush_rpush_and_lpop_rpop_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 // TEST LLEN, LREM, LINDEX and LSET
@@ -669,6 +675,7 @@ int test_redis_llen_lrem_lindex_lset_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 // TEST HGET, HEXISTS, HMSET, HDEL, HSET and HVALS
@@ -892,6 +899,7 @@ int test_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 // TEST HGETALL, HKEYS, and HLEN
@@ -1016,6 +1024,7 @@ int test_redis_hgetall_hkeys_and_hlen_opt()
         return EXIT_SUCCESS;
     }
     printf("End of test\n\n");
+    return EXIT_FAILURE;
 }
 
 int full_c_test()
@@ -1030,4 +1039,5 @@ int full_c_test()
     test_redis_hget_hexists_hmset_hdel_hset_hvals_opt();
     test_redis_hgetall_hkeys_and_hlen_opt();
     printf("end of C test...\n\n\n");
+    return EXIT_FAILURE;
 }
