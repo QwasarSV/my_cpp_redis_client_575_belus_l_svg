@@ -75,10 +75,8 @@ namespace my_redis
 
             void splitHostAndPort(const std::string& input, std::string& host, int& port)
             {
-                // Find the protocol separator
                 size_t protocolPos = input.find("://");
                 size_t startPos = 0;
-                // If protocol separator is found, adjust the starting position for host extraction
                 if (protocolPos != std::string::npos)
                 {
                     startPos = protocolPos + 3;
@@ -90,15 +88,11 @@ namespace my_redis
                 }
                 host = input.substr(startPos, colonPos - startPos);
                 std::string portStr = input.substr(colonPos + 1);
-                // Check if the port part of the string is actually a number
                 if (portStr.empty() || portStr.find_first_not_of("0123456789") != std::string::npos)
                 {
                     throw std::invalid_argument("Port must be a number");
                 }
-                // Convert the port string to an int
                 port = std::stoi(portStr);
-
-                // Optionally, you can add validation for port range here (usually 0 to 65535)
                 if (port < 0 || port > 65535)
                 {
                     throw std::invalid_argument("Port number is out of valid range");
