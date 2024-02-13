@@ -98,6 +98,12 @@ namespace my_redis
                     throw std::invalid_argument("Port number is out of valid range");
                 }
             }
+            
+            std::string createErrMsg(const std::string& msg, const std::string& value)
+            {
+                std::string errMsg = msg + value;
+                return errMsg;
+            }
 
         public:
             RedisClient(const std::string& address)
@@ -114,114 +120,116 @@ namespace my_redis
 
 
 // KEY/VALUES
-            void set(const char* key, const char* value)
+            std::string set(const char* key, const char* value)
             {
                 redisReply* reply;
                 reply = (redisReply*)redisCommand(context, "SET %s %s", key, value);
                 if (reply == NULL)
                 {
-                    printf("Error: %s\n", context->errstr);
-                    redisFree(context);
-                    exit(1);
+                    throw std::runtime_error(context->errstr);
                 }
+                std::unique_ptr<redisReply, decltype(&freeReplyObject)> autoReply(reply, freeReplyObject);
                 if (reply->type == REDIS_REPLY_STATUS)
                 {
-                    printf("SET operation - %s\n", reply->str);
+                    return std::string(reply->str, reply->len);
                 }
                 else
                 {
-                    printf("SET operation failed.\n");
+                    throw std::runtime_error("SET operation failed.");
                 }
-                freeReplyObject(reply);
             }
 
-            void get(const char* key)
+            std::string get(const char* key)
             {
                 redisReply* reply;
                 reply = (redisReply*)redisCommand(context, "GET %s", key);
                 if (reply == NULL)
                 {
-                    printf("Error: %s\n", context->errstr);
-                    redisFree(context);
-                    exit(1);
+                    throw std::runtime_error(context->errstr);
                 }
+                std::unique_ptr<redisReply, decltype(&freeReplyObject)> autoReply(reply, freeReplyObject);
                 if (reply->type == REDIS_REPLY_STRING)
                 {
-                    printf("GET operation - value: %s\n", reply->str);
+                    return std::string(reply->str, reply->len);
                 }
                 else
                 {
-                    printf("GET operation failed or key does not exist.\n");
+                    throw std::runtime_error("GET operation failed or key does not exist.");
                 }
-                freeReplyObject(reply);
             }
 
-            void keys(const char *pattern)
+            std::vector<std::string> keys(const char *pattern)
             {
+                std::vector<std::string> keys; 
                 redisReply* reply;
                 reply = (redisReply*)redisCommand(context, "KEYS %s", pattern);
                 if (reply == NULL)
                 {
-                    printf("Error: %s\n", context->errstr);
-                    redisFree(context);
-                    exit(1);
+                    throw std::runtime_error(context->errstr);
                 }
+                std::unique_ptr<redisReply, decltype(&freeReplyObject)> autoReply(reply, freeReplyObject);
 
                 if (reply->type == REDIS_REPLY_ARRAY)
                 {
+                    keys.reserve(reply->elements); // same as std::unique_ptr<std::string[]> keys(new std::string[reply->elements]); ?
                     printf("Matching keys:\n");
-                    for (size_t i = 0; i < reply->elements; i++)
+                    for (size_t index = 0; index < reply->elements; index++)
                     {
-                        printf("%s\n", reply->element[i]->str);
+                        auto* element = reply->element[index];
+                        if (element->type == REDIS_REPLY_STRING)
+                        {
+                            keys.emplace_back(element->str, element->len);
+                        }
+                        else
+                        {
+                            std::cout << "NOT A STRING" << std::endl;
+                        } // does element type change in middle of response ?? 
                     }
                 }
                 else
                 {
                     printf("No matching keys found.\n");
                 }
-                freeReplyObject(reply);
+                return keys;
             }
 
-            void type(const char* key)
+            std::string type(const char* key)
             {
                 redisReply* reply;
                 reply = (redisReply*)redisCommand(context, "TYPE %s", key);
                 if (reply == NULL)
                 {
-                    printf("Error: %s\n", context->errstr);
-                    redisFree(context);
-                    exit(1);
+                    throw std::runtime_error(context->errstr);
                 }
+                std::unique_ptr<redisReply, decltype(&freeReplyObject)> autoReply(reply, freeReplyObject);
                 if (reply->type == REDIS_REPLY_STATUS)
                 {
-                    printf("Type of key %s: %s\n", key, reply->str);
+                    return std::string(reply->str, reply->len);
                 }
                 else
                 {
-                    printf("Failed to get type for key %s.\n", key);
+                    std::string errMsg = createErrMsg("Failed to get type for key ", key);
+                    throw std::runtime_error(errMsg);
                 }
-                freeReplyObject(reply);
             }
 
-            void del(const char* key)
+            std::string del(const char* key)
             {
                 redisReply* reply;
                 reply = (redisReply*)redisCommand(context, "DEL %s", key);
                 if (reply == NULL)
                 {
-                    printf("Error: %s\n", context->errstr);
-                    redisFree(context);
-                    exit(1);
+                    throw std::runtime_error(context->errstr);
                 }
+                std::unique_ptr<redisReply, decltype(&freeReplyObject)> autoReply(reply, freeReplyObject);
                 if (reply->type == REDIS_REPLY_INTEGER)
                 {
-                    printf("DEL operation - %lld keys deleted.\n", reply->integer);
+                    return std::to_string(reply->integer);
                 }
                 else
                 {
-                    printf("DEL operation failed.\n");
+                    throw std::runtime_error("DEL operation failed.");
                 }
-                freeReplyObject(reply);
             }
 
             void unlink(const char* key)

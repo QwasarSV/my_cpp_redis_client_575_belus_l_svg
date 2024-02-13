@@ -4,20 +4,24 @@ void test_pp_get_and_set_opt()
 {
     printf("Begin c++ test on GET and SET\n");
     my_redis::RedisClient rc("tcp://myredis:6379");
-    rc.set("Hiredis01", "Hiredis01_value");
-    rc.get("Hiredis01");
-    printf("end of c++ test...\n\n\n");
+    std::cout << "SET operation - " << rc.set("Hiredis01", "Hiredis01_value") << std::endl;
+    std::cout << "GET operation - value: " << rc.get("Hiredis01") << std::endl;
+    printf("End of c++ test...\n\n\n");
 }
 
-void test_pp_list_type_and_del_opt()
+void test_pp_keys_type_and_del_opt()
 {
-    printf("Begin c++ test on GET and SET\n");
+    printf("Begin c++ test on KEYS, TYPE and DEL\n");
     my_redis::RedisClient rc("tcp://myredis:6379");
-    rc.set("Hiredis01", "Hiredis01_value");
-    rc.keys("*");
-    rc.type("Hiredis01");
-    rc.del("Hiredis01");
-    printf("end of c++ test...\n\n\n");
+    std::cout << "SET operation - " << rc.set("Hiredis01", "Hiredis01_value") << std::endl;
+    std::vector<std::string> vector = rc.keys("*");
+    for (std::vector<std::string>::iterator it = std::begin(vector); it != std::end(vector); ++it)
+    {
+        std::cout << *it << "\n";
+    }
+    std::cout << "Type of key " << "Hiredis01" << " :" << rc.type("Hiredis01")  << std::endl;
+    std::cout << "DEL operation - " << rc.del("Hiredis01") << " keys deleted." << std::endl;
+    printf("End of c++ test...\n\n\n");
 }
 
 void test_pp_expire_rename_and_unlink_opt()
@@ -34,7 +38,7 @@ void test_pp_expire_rename_and_unlink_opt()
     rc.get("Hiredis01");
     rc.get("Hiredis02");
     rc.unlink("Hiredis02");
-    printf("end of c++ test...\n\n\n");
+    printf("End of c++ test...\n\n\n");
 }
 
 void test_pp_lpush_rpush_and_lpop_rpop_opt()
@@ -45,7 +49,7 @@ void test_pp_lpush_rpush_and_lpop_rpop_opt()
     rc.rpush("mylist", "rightElement");
     rc.lpop("mylist");
     rc.rpop("mylist");
-    printf("end of c++ test...\n\n\n");
+    printf("End of c++ test...\n\n\n");
 }
 
 void test_pp_redis_llen_lrem_lindex_lset_opt()
@@ -64,7 +68,7 @@ void test_pp_redis_llen_lrem_lindex_lset_opt()
     rc.lpop("mylist");
     rc.rpop("mylist");
     rc.lpop("mylist");
-    printf("end of c++ test...\n\n\n");
+    printf("End of c++ test...\n\n\n");
 }
 
 void test_pp_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
@@ -81,7 +85,7 @@ void test_pp_redis_hget_hexists_hmset_hdel_hset_hvals_opt()
     rc.hdel("myhash", "field3");
     rc.hdel("myhash", "field2");
     rc.hdel("myhash", "field1");
-    printf("end of c++ test...\n\n\n");
+    printf("End of c++ test...\n\n\n");
 }
 
 void test_pp_redis_hgetall_hkeys_and_hlen_opt()
@@ -98,13 +102,14 @@ void test_pp_redis_hgetall_hkeys_and_hlen_opt()
     rc.hdel("myhash", "field3");
     rc.hdel("myhash", "field2");
     rc.hdel("myhash", "field1");
-    printf("end of c++ test...\n\n\n");
+    printf("End of c++ test...\n\n\n");
 }
 
 int full_cpp_test()
 {
+    
     test_pp_get_and_set_opt();
-    test_pp_list_type_and_del_opt();
+    test_pp_keys_type_and_del_opt();
     test_pp_expire_rename_and_unlink_opt();
     test_pp_lpush_rpush_and_lpop_rpop_opt();
     test_pp_redis_llen_lrem_lindex_lset_opt();
