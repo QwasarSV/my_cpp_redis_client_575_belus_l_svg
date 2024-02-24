@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(rediPack VERSION 0.0.1 LANGUAGES CXX C ASM_NASM)
 
-include(GNUInstallDirs)
-
 # Set C standard
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -79,13 +77,6 @@ if(ENABLE_GTEST)
     gtest_discover_tests(redis_api_test)
 endif()
 
-
-# Install the library
-install(TARGETS rediPackObj
-        EXPORT ${PROJECT_NAME}Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Create the main executable with main.cpp
 add_executable(rediPack src/main.cpp)
