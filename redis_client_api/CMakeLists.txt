@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 project(rediPack VERSION 0.0.1 LANGUAGES CXX C ASM_NASM)
 
+include(GNUInstallDirs)
+
 # Set C standard
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -60,9 +62,7 @@ if(ENABLE_CFLAGS)
     target_link_libraries(rediPackObj PRIVATE -fsanitize=address)
 endif()
 
-# Create the main executable with main.cpp
-add_executable(rediPack src/main.cpp)
-target_link_libraries(rediPack PRIVATE rediPackObj)
+
 
 # Option to enable or disable GoogleTest
 option(ENABLE_GTEST "Enable Google Test" OFF)
@@ -79,8 +79,20 @@ if(ENABLE_GTEST)
     gtest_discover_tests(redis_api_test)
 endif()
 
-# # Install a pkg-config file.
-# CONFIGURE_FILE(
-#     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/pkg-config.pc.in"
-#     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
-# )
+
+# Install the library
+install(TARGETS rediPackObj
+        EXPORT ${PROJECT_NAME}Targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        OBJECTS DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+# Create the main executable with main.cpp
+add_executable(rediPack src/main.cpp)
+target_link_libraries(rediPack PRIVATE rediPackObj)
+
+# Install a pkg-config file.
+CONFIGURE_FILE(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/pkg-config.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
+)
