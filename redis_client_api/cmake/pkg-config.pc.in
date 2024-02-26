@@ -1,4 +1,10 @@
-Name: ${PROJECT_NAME}
+prefix=@PREFIX@
+exec_prefix=@EXEC_PREFIX@bin
+libdir=@LIBDIR@lib
+includedir=@INCLUDEDIR@include
+
+Name: @PROJECT_NAME@
 Description: REDIS CLIENT API BASED OF HIREDIS LIB.
-Version: ${PROJECT_VERSION}
-Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lrediPack
+Cflags: -I${includedir}
