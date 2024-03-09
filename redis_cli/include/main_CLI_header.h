@@ -1,8 +1,6 @@
 #ifndef __MAIN_CLI_HEADERFILE_
 #define __MAIN_CLI_HEADERFILE_
 
-
-
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ncurses.h>
@@ -20,3 +18,4 @@
 #include <my_readline.h>
 
 #endif
+

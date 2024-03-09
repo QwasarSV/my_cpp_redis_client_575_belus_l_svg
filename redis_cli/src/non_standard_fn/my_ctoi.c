@@ -4,7 +4,7 @@
 // convert character into int.  
 // != itoa 
 // take a buffer and convert it into a value 
-int my_ctoi(char *string, size_t n)
+int my_ctoi(const char *string, size_t n)
 {
     int num = 0;
     int mult = 1;

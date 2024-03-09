@@ -23,7 +23,6 @@ class MyGetOpt
     {
         GetOptPtr = (my_getopt_t*) malloc(sizeof(my_getopt_t));
         init_getopt(GetOptPtr, VALID_ARG);
-        // execute_cmd(getopt_ptr);
     }
 
     void FlagParser(std::vector<std::string> tokens)
@@ -85,6 +84,16 @@ class MyGetOpt
     const char* getKeyword()
     {
         return GetOptPtr->str_arr[0];
+    }
+
+    char** getArgs()
+    {
+        return GetOptPtr->str_arr;
+    }
+
+    int getArgCount()
+    {
+        return GetOptPtr->nbr_str;
     }
 
     std::vector<std::string> convertToVector(char** tokens)

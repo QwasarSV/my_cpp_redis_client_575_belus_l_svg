@@ -5,7 +5,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int     my_ctoi(char *string, size_t n);
+int     my_ctoi(const char *string, size_t n);
 #ifdef __cplusplus
 }
 #endif
